@@ -8,6 +8,7 @@ using System.Data;
 using System.Web.Script.Services;
 using System.Data.SqlClient;
 using System.Web.Configuration;
+using System.Web.Script.Serialization;
 
 /// <summary>
 /// Summary description for WebService
@@ -26,10 +27,7 @@ public class WebService : System.Web.Services.WebService
         //InitializeComponent(); 
     }
 
-    [WebMethod]
-    //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-    [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-    public object GetProducts()
+    public List<Value> GetValues()
     {
         string connectionString = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         DataTable dt = new DataTable();
@@ -50,7 +48,6 @@ public class WebService : System.Web.Services.WebService
             cmd = null;
         }
 
-        //create list of CityNames
         List<Value> value = new List<Value>();
         foreach (DataRow row in dt.Rows)
         {
@@ -63,9 +60,18 @@ public class WebService : System.Web.Services.WebService
         return value;
     }
 
+    [WebMethod]
+    [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
+    public void HelloWorld()
+    {
+        JavaScriptSerializer js = new JavaScriptSerializer();
+        Context.Response.Clear();
+        Context.Response.ContentType = "application/json";
+        Context.Response.Write(js.Serialize(GetValues()));
+    }
+
     public class Value
     {
-
         public int Id
         {
             get;
@@ -77,6 +83,5 @@ public class WebService : System.Web.Services.WebService
             get;
             set;
         }
-
     }
 }
