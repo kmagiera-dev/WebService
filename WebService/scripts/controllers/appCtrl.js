@@ -1,17 +1,67 @@
-﻿var app = angular.module("app", []);
+﻿//var app = angular.module("app", []);
+var app = angular.module('app', ['wj']);
 window.onload = function () {
 
     // create the grid
-    var grid = new wijmo.grid.FlexGrid('#theGrid');
+    var grid = new wijmo.grid.FlexGrid('#theGrid', {
+        selectionMode: wijmo.grid.SelectionMode.Row
+    });
+
+    // initialize the chart
+    var chart = new wijmo.chart.FlexChart('#theChart', {
+        bindingX: 'Id',
+        series: [{
+            binding: 'Series1',
+            name: 'Series1',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series2',
+            name: 'Series2',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series3',
+            name: 'Series3',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series4',
+            name: 'Series4',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series5',
+            name: 'Series5',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series6',
+            name: 'Series6',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series7',
+            name: 'Series7',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series8',
+            name: 'Series8',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series9',
+            name: 'Series9',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }, {
+            binding: 'Series10',
+            name: 'Series10',
+            chartType: wijmo.chart.ChartType.LineSymbols
+        }],
+        selectionMode: wijmo.chart.SelectionMode.Point
+    });
 
     // get some data
     wijmo.httpRequest('WebService.asmx/HelloWorld?$format=json', {
         success: function (xhr) {
             var response = JSON.parse(xhr.response, dateTimeReviver);
             grid.itemsSource = response;
+            chart.itemsSource = response;
         }
     });
-
 }
 
 dateTimeReviver = function (key, value) {
@@ -28,34 +78,3 @@ dateTimeReviver = function (key, value) {
     return value;
 }
 
-
-app.controller("appCtrl", function($scope, $http) {
-    function getData() {
-        var result = new wijmo.collections.ObservableArray();
-        $http({
-            url: 'WebService.asmx/HelloWorld',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json; charset=utf-8 ' },
-        }).success(function (data, status, headers, config) {
-            $scope.posts = data;
-            result = data;
-        }).error(function (data, status, headers, config) {
-            $scope.status = status + ' ' + headers;
-        });
-        return result;
-    }
-
-    $scope.data = new wijmo.collections.CollectionView(getData());
-
-    /*$http({
-        url: 'WebService.asmx/HelloWorld',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json; charset=utf-8 ' },
-    }).success(function (data, status, headers, config) {
-        $scope.posts = data;
-        $scope.data = new wijmo.collections.CollectionView(data);
-    }).error(function (data, status, headers, config) {
-        $scope.status = status + ' ' + headers;
-    });*/
-
-});
