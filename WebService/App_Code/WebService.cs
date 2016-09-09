@@ -27,7 +27,7 @@ public class WebService : System.Web.Services.WebService
         //InitializeComponent(); 
     }
 
-    public List<Value> GetValues()
+    public List<Dictionary<string, object>> GetValues()
     {
         string connectionString = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         DataTable dt = new DataTable();
@@ -35,7 +35,7 @@ public class WebService : System.Web.Services.WebService
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
             // Creating insert statement
-            string query = string.Format(@"Select * from DataValue");
+            string query = string.Format(@"Select * from SensorsValues");
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
             cmd.CommandText = query;
@@ -48,16 +48,19 @@ public class WebService : System.Web.Services.WebService
             cmd = null;
         }
 
-        List<Value> value = new List<Value>();
-        foreach (DataRow row in dt.Rows)
+        List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+        Dictionary<string, object> row;
+        foreach (DataRow dataRow in dt.Rows)
         {
-            Value cn = new Value();
-            cn.Id = (int)row["Id"];
-            cn.Val = (int)row["Value"];
-            value.Add(cn);
+            row = new Dictionary<string, object>();
+            foreach (DataColumn col in dt.Columns)
+            {
+                row.Add(col.ColumnName, dataRow[col]);
+            }
+            rows.Add(row);
         }
 
-        return value;
+        return rows;
     }
 
     [WebMethod]
