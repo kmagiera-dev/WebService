@@ -45,13 +45,40 @@ window.onload = function () {
         }, {
             binding: 'Series9',
             name: 'Series9',
-            chartType: wijmo.chart.ChartType.LineSymbols
+            chartType: wijmo.chart.ChartType.LineSymbols,
         }, {
             binding: 'Series10',
             name: 'Series10',
             chartType: wijmo.chart.ChartType.LineSymbols
         }],
-        selectionMode: wijmo.chart.SelectionMode.Point
+        selectionMode: wijmo.chart.SelectionMode.Point,
+    });
+
+    chart.seriesVisibilityChanged.addHandler(function () {
+        // loop through chart series
+        chart.series.forEach(function (series) {
+            var seriesName = series.name,
+                checked = series.visibility === wijmo.chart.SeriesVisibility.Visible;
+
+            // update custom checkbox panel
+            var element = document.getElementById('cb' + seriesName);
+            document.getElementById('cb' + seriesName).checked = checked;
+        });
+    });
+
+    // loop through custom check boxes
+    ['cbSeries1', 'cbSeries2', 'cbSeries3', 'cbSeries4', 'cbSeries5', 'cbSeries6', 'cbSeries7', 'cbSeries8', 'cbSeries9', 'cbSeries10'].forEach(function (item, index) {
+        // update checkbox and toggle FlexChart's series visibility when clicked
+        var el = document.getElementById(item);
+        el.checked = chart.series[index].visibility === wijmo.chart.SeriesVisibility.Visible;
+        el.addEventListener('click', function () {
+            if (this.checked) {
+                chart.series[index].visibility = wijmo.chart.SeriesVisibility.Visible;
+            }
+            else {
+                chart.series[index].visibility = wijmo.chart.SeriesVisibility.Legend;
+            }
+        });
     });
 
     // get some data
