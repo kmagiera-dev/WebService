@@ -1,7 +1,6 @@
 ﻿//var app = angular.module("app", []);
 var app = angular.module('app', ['wj']);
 window.onload = function () {
-    var chart, chartGestures;
 
     // create the grid
     var grid = new wijmo.grid.FlexGrid('#theGrid', {
@@ -53,7 +52,6 @@ window.onload = function () {
             chartType: wijmo.chart.ChartType.LineSymbols
         }],
         selectionMode: wijmo.chart.SelectionMode.Point,
-       
     });
 
     chart.seriesVisibilityChanged.addHandler(function () {
@@ -68,7 +66,10 @@ window.onload = function () {
         });
     });
 
-    var chartGestures = new wijmo.chart.interaction.ChartGestures(chart);
+    var chartGestures = new wijmo.chart.interaction.ChartGestures(chart, {
+        mouseAction: wijmo.chart.interaction.MouseAction.Pan,
+      //  interactiveAxes: wijmo.chart.interaction.InteractiveAxes.XY,
+    });
 
 
     // loop through custom check boxes
@@ -94,6 +95,47 @@ window.onload = function () {
             chart.itemsSource = response;
         }
     });
+}
+
+function getChart() {
+    if (!chart) {
+        chart = wijmo.Control.getControl('#gesturesChart');
+    }
+    return chart;
+}
+
+function getChartGesture() {
+    var gesturesChart;
+    if (!chartGestures) {
+        gesturesChart = getChart();
+        chartGestures = c1.getExtender(gesturesChart, 'gestures');
+    }
+    return chartGestures;
+}
+
+function mouseActionChanged(menu) {
+    var extGesture = getChartGesture();
+    updateMenu(menu, 'Mouse Action');
+    if (extGesture) {
+        extGesture.mouseAction = wijmo.chart.interaction.MouseAction[menu.selectedItem.Header];
+    }
+}
+
+function interactiveAxesChanged(menu) {
+    var extGesture = getChartGesture();
+    updateMenu(menu, 'Interactive Axes');
+    if (extGesture) {
+        extGesture.interactiveAxes = wijmo.chart.interaction.InteractiveAxes[menu.selectedItem.Header];
+    }
+}
+
+function resetAxes() {
+    var extGesture = getChartGesture();
+    if (extGesture) {
+        extGesture.reset();
+    }
+
+    document.querySelector('#reset').disabled = 'disabled';
 }
 
 dateTimeReviver = function (key, value) {

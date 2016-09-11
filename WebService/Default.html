@@ -46,8 +46,20 @@ Series9 <input id="cbSeries9" type="checkbox" />
 Series10 <input id="cbSeries10" type="checkbox" /><br />
 
 <p>And this is a <b>FlexChart</b> control showing the same data:</p>
-<div id="theChart" style="height:300px;">
 
-</div>
+<c1-menu id="mouseAction" header="Mouse Action: <b>Zoom</b>" item-clicked="mouseActionChanged">
+    <c1-menu-item header="Zoom"></c1-menu-item>
+    <c1-menu-item header="Pan"></c1-menu-item>
+</c1-menu>
+
+<c1-menu id="interactiveAxes" header="Interactive Axes: <b>X</b>" item-clicked="interactiveAxesChanged">
+    <c1-menu-item header="X"></c1-menu-item>
+    <c1-menu-item header="Y"></c1-menu-item>
+    <c1-menu-item header="XY"></c1-menu-item>
+</c1-menu>
+
+<button id="reset" class="btn btn-primary" onclick="resetAxes()" disabled="disabled">Reset Zoom</button>
+
+<div id="theChart" style="height:300px;"></div>
 
 </html>
