@@ -1,6 +1,7 @@
 ﻿//var app = angular.module("app", []);
 var app = angular.module('app', ['wj']);
 window.onload = function () {
+    var chart, chartGestures;
 
     // create the grid
     var grid = new wijmo.grid.FlexGrid('#theGrid', {
@@ -9,7 +10,7 @@ window.onload = function () {
 
     // initialize the chart
     var chart = new wijmo.chart.FlexChart('#theChart', {
-        bindingX: 'Id',
+        bindingX: 'Date',
         series: [{
             binding: 'Series1',
             name: 'Series1',
@@ -52,6 +53,7 @@ window.onload = function () {
             chartType: wijmo.chart.ChartType.LineSymbols
         }],
         selectionMode: wijmo.chart.SelectionMode.Point,
+       
     });
 
     chart.seriesVisibilityChanged.addHandler(function () {
@@ -65,6 +67,9 @@ window.onload = function () {
             document.getElementById('cb' + seriesName).checked = checked;
         });
     });
+
+    var chartGestures = new wijmo.chart.interaction.ChartGestures(chart);
+
 
     // loop through custom check boxes
     ['cbSeries1', 'cbSeries2', 'cbSeries3', 'cbSeries4', 'cbSeries5', 'cbSeries6', 'cbSeries7', 'cbSeries8', 'cbSeries9', 'cbSeries10'].forEach(function (item, index) {
@@ -93,7 +98,7 @@ window.onload = function () {
 
 dateTimeReviver = function (key, value) {
     var a;
-    if (key == 'Date') {
+    if (key === 'Date') {
         a = /\/Date\((-?\d*)\)\//.exec(value);
         if (a) {
             var d = new Date(+a[1]);
