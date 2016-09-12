@@ -68,7 +68,7 @@ window.onload = function () {
 
     var chartGestures = new wijmo.chart.interaction.ChartGestures(chart, {
         mouseAction: wijmo.chart.interaction.MouseAction.Pan,
-      //  interactiveAxes: wijmo.chart.interaction.InteractiveAxes.XY,
+        interactiveAxes: wijmo.chart.interaction.InteractiveAxes.XY,
     });
 
 
@@ -144,8 +144,7 @@ dateTimeReviver = function (key, value) {
         a = /\/Date\((-?\d*)\)\//.exec(value);
         if (a) {
             var d = new Date(+a[1]);
-            var str = d.getFullYear() + "-" + ('0' + (d.getMonth() + 1)).slice(-2) + "-" + ('0' + d.getDate()).slice(-2) + " " +
-                ('0' + d.getHours()).slice(-2) + ":" + ('0' + d.getMinutes()).slice(-2) + ":" + ('0' + d.getSeconds()).slice(-2) + ":" + ('00' + d.getMilliseconds()).slice(-3);
+            var str = d.getFullYear() + "-" + ('0' + (d.getMonth() + 1)).slice(-2) + "-" + ('0' + d.getDate()).slice(-2);
             return str;
         }
     }
