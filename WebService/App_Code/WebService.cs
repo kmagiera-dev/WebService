@@ -28,7 +28,7 @@ public class WebService : System.Web.Services.WebService
         //InitializeComponent(); 
     }
 
-    public List<Dictionary<string, object>> GetValues()
+    public string GetValues()
     {
         string connectionString = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         DataTable dt = new DataTable();
@@ -49,19 +49,12 @@ public class WebService : System.Web.Services.WebService
             cmd = null;
         }
 
-        List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
-        Dictionary<string, object> row;
-        foreach (DataRow dataRow in dt.Rows)
-        {
-            row = new Dictionary<string, object>();
-            foreach (DataColumn col in dt.Columns)
-            {
-                row.Add(col.ColumnName, dataRow[col]);
-            }
-            rows.Add(row);
-        }
-
-        return rows;
+        return new JavaScriptSerializer().Serialize(
+            dt.Rows.Cast<DataRow>()
+            .Select(row => row.Table.Columns.Cast<DataColumn>()
+            .ToDictionary(col => col.ColumnName, col => row[col.ColumnName]))
+            .ToList()
+        );
     }
 
     public string ReadStatuses(string SeriesNr)
@@ -110,6 +103,6 @@ public class WebService : System.Web.Services.WebService
         JavaScriptSerializer js = new JavaScriptSerializer();
         Context.Response.Clear();
         Context.Response.ContentType = "application/json";
-        Context.Response.Write(js.Serialize(GetValues()));
+        Context.Response.Write(GetValues());
     }
 }

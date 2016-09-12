@@ -1,67 +1,14 @@
 ﻿//var app = angular.module("app", []);
 var app = angular.module('app', ['wj']);
+var cv, 
+    grid,
+    gridStatus,
+    chart,
+    chartGestures;
+
 window.onload = function () {
-    // create a CollectionView to keep track of selection
-    var cv;
 
-    // create the grid
-    var grid = new wijmo.grid.FlexGrid('#theGrid', {
-        headersVisibility: wijmo.grid.HeadersVisibility.Column,
-        selectionMode: wijmo.grid.SelectionMode.Cell,
-    });
-
-    var gridStatus = new wijmo.grid.FlexGrid('#theStatusGrid', {
-        selectionMode: wijmo.grid.SelectionMode.Row,
-    });
-
-    // initialize the chart
-    var chart = new wijmo.chart.FlexChart('#theChart', {
-        bindingX: 'Date',
-        series: [{
-            binding: 'Series1',
-            name: 'Series1',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series2',
-            name: 'Series2',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series3',
-            name: 'Series3',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series4',
-            name: 'Series4',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series5',
-            name: 'Series5',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series6',
-            name: 'Series6',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series7',
-            name: 'Series7',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series8',
-            name: 'Series8',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }, {
-            binding: 'Series9',
-            name: 'Series9',
-            chartType: wijmo.chart.ChartType.LineSymbols,
-        }, {
-            binding: 'Series10',
-            name: 'Series10',
-            chartType: wijmo.chart.ChartType.LineSymbols
-        }],
-        selectionMode: wijmo.chart.SelectionMode.Point,
-    });
-
-    chart.seriesVisibilityChanged.addHandler(function () {
+    getChart().seriesVisibilityChanged.addHandler(function () {
         // loop through chart series
         chart.series.forEach(function (series) {
             var seriesName = series.name,
@@ -73,11 +20,7 @@ window.onload = function () {
         });
     });
 
-    var chartGestures = new wijmo.chart.interaction.ChartGestures(chart, {
-        mouseAction: wijmo.chart.interaction.MouseAction.Pan,
-        interactiveAxes: wijmo.chart.interaction.InteractiveAxes.XY,
-    });
-
+    initChartGesture();
 
     // loop through custom check boxes
     ['cbSeries1', 'cbSeries2', 'cbSeries3', 'cbSeries4', 'cbSeries5', 'cbSeries6', 'cbSeries7', 'cbSeries8', 'cbSeries9', 'cbSeries10'].forEach(function (item, index) {
@@ -99,44 +42,102 @@ window.onload = function () {
         success: function (xhr) {
             var response = JSON.parse(xhr.response, dateTimeReviver);
             cv = new wijmo.collections.CollectionView(response);
-            grid.itemsSource = cv;
-            chart.itemsSource = cv;
-            //cv.currentChanged.addHandler(function (sender, args) {
-            grid.selectionChanged.addHandler(function (sender, args) {
+            getGrid().itemsSource = cv;
+            getChart().itemsSource = cv;
+            getGrid().selectionChanged.addHandler(function (sender, args) {
 
-                updateStatus(grid.selection.col);
+                updateStatus(getGrid().selection.col);
             });
-            updateStatus(grid.selection.col);
+            updateStatus(getGrid().selection.col);
         }
     });
+}
 
-    // update the details when the CollectionView's currentItem changes
-    function updateStatus(value) {
-        //var temp = grid.selection.col-1;
-        wijmo.httpRequest('WebService.asmx/GetStatuses?', {
-            data: { Id: value < 2 ? 1 : value - 1},
-            success: function (xhr) {
-                var response = JSON.parse(xhr.response, dateTimeReviver);
-                gridStatus.itemsSource = new wijmo.collections.CollectionView(response);
-            }
+function updateStatus(value) {
+    wijmo.httpRequest('WebService.asmx/GetStatuses?', {
+        data: { Id: value < 2 ? 1 : value - 1 },
+        success: function (xhr) {
+            var response = JSON.parse(xhr.response, dateTimeReviver);
+            getGridStatus().itemsSource = new wijmo.collections.CollectionView(response);
+        }
+    });
+}
+
+function getGrid() {
+    if (!grid) {
+        grid = new wijmo.grid.FlexGrid('#theGrid', {
+            headersVisibility: wijmo.grid.HeadersVisibility.Column,
+            selectionMode: wijmo.grid.SelectionMode.Cell,
         });
     }
+    return grid;
+}
+
+function getGridStatus() {
+    if (!gridStatus) {
+        gridStatus = new wijmo.grid.FlexGrid('#theStatusGrid', {
+            selectionMode: wijmo.grid.SelectionMode.Row,
+        });
+    }
+    return gridStatus;
 }
 
 function getChart() {
     if (!chart) {
-        chart = wijmo.Control.getControl('#gesturesChart');
+        chart = new wijmo.chart.FlexChart('#theChart', {
+            bindingX: 'Date',
+            series: [{
+                binding: 'Series1',
+                name: 'Series1',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series2',
+                name: 'Series2',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series3',
+                name: 'Series3',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series4',
+                name: 'Series4',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series5',
+                name: 'Series5',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series6',
+                name: 'Series6',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series7',
+                name: 'Series7',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series8',
+                name: 'Series8',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }, {
+                binding: 'Series9',
+                name: 'Series9',
+                chartType: wijmo.chart.ChartType.LineSymbols,
+            }, {
+                binding: 'Series10',
+                name: 'Series10',
+                chartType: wijmo.chart.ChartType.LineSymbols
+            }],
+            selectionMode: wijmo.chart.SelectionMode.Point,
+        });
     }
     return chart;
 }
 
-function getChartGesture() {
-    var gesturesChart;
-    if (!chartGestures) {
-        gesturesChart = getChart();
-        chartGestures = c1.getExtender(gesturesChart, 'gestures');
-    }
-    return chartGestures;
+function initChartGesture() {
+    chartGestures = new wijmo.chart.interaction.ChartGestures(chart, {
+        mouseAction: wijmo.chart.interaction.MouseAction.Pan,
+        interactiveAxes: wijmo.chart.interaction.InteractiveAxes.XY,
+    });
 }
 
 function mouseActionChanged(menu) {
