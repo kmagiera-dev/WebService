@@ -9,6 +9,7 @@ using System.Web.Script.Services;
 using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Web.Script.Serialization;
+using System.Collections.Specialized;
 
 /// <summary>
 /// Summary description for WebService
@@ -63,6 +64,45 @@ public class WebService : System.Web.Services.WebService
         return rows;
     }
 
+    public string ReadStatuses(string SeriesNr)
+    {
+        string connectionString = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        DataTable dt = new DataTable();
+        SqlDataReader dr = null;
+        using (SqlConnection conn = new SqlConnection(connectionString))
+        {
+            // Creating insert statement
+            string query = string.Format(@"Select ts.Date, ss.SensorStatus from TimeValue As ts INNER JOIN StatusValue AS ss ON ts.SensorId  = ss.Id WHERE ss.SensorType = {0}",
+                SeriesNr);
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
+            conn.Open();
+
+            dr = cmd.ExecuteReader();
+            dt.Load(dr);
+            conn.Close();
+            cmd = null;
+        }
+        return new JavaScriptSerializer().Serialize(
+            dt.Rows.Cast<DataRow>()
+            .Select(row => row.Table.Columns.Cast<DataColumn>()
+            .ToDictionary(col => col.ColumnName, col => row[col.ColumnName]))
+            .ToList()
+        );
+    }
+
+    [WebMethod]
+    [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
+    public void GetStatuses(string Id)
+    {
+        JavaScriptSerializer js = new JavaScriptSerializer();
+        Context.Response.Clear();
+        Context.Response.ContentType = "application/json";
+        Context.Response.Write(ReadStatuses(Id));
+    }
+
     [WebMethod]
     [ScriptMethod(UseHttpGet = true, ResponseFormat = ResponseFormat.Json)]
     public void HelloWorld()
@@ -71,20 +111,5 @@ public class WebService : System.Web.Services.WebService
         Context.Response.Clear();
         Context.Response.ContentType = "application/json";
         Context.Response.Write(js.Serialize(GetValues()));
-    }
-
-    public class Value
-    {
-        public int Id
-        {
-            get;
-            set;
-        }
-
-        public int Val
-        {
-            get;
-            set;
-        }
     }
 }

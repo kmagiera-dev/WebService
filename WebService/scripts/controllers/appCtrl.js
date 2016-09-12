@@ -1,10 +1,16 @@
 ﻿//var app = angular.module("app", []);
 var app = angular.module('app', ['wj']);
 window.onload = function () {
+    // create a CollectionView to keep track of selection
+    var cv;
 
     // create the grid
     var grid = new wijmo.grid.FlexGrid('#theGrid', {
-        selectionMode: wijmo.grid.SelectionMode.Row
+        selectionMode: wijmo.grid.SelectionMode.Row,
+    });
+
+    var gridStatus = new wijmo.grid.FlexGrid('#theStatusGrid', {
+        selectionMode: wijmo.grid.SelectionMode.Row,
     });
 
     // initialize the chart
@@ -91,10 +97,26 @@ window.onload = function () {
     wijmo.httpRequest('WebService.asmx/HelloWorld?$format=json', {
         success: function (xhr) {
             var response = JSON.parse(xhr.response, dateTimeReviver);
-            grid.itemsSource = response;
-            chart.itemsSource = response;
+            cv = new wijmo.collections.CollectionView(response);
+            grid.itemsSource = cv;
+            chart.itemsSource = cv;
+            cv.currentChanged.addHandler(function (sender, args) {
+                updateStatus(cv.currentItem);
+            });
+            updateStatus(cv.currentItem);
         }
     });
+
+    // update the details when the CollectionView's currentItem changes
+    function updateStatus(value) {
+        wijmo.httpRequest('WebService.asmx/GetStatuses?', {
+            data: { Id: value.Id + 1 },
+            success: function (xhr) {
+                var response = JSON.parse(xhr.response, dateTimeReviver);
+                gridStatus.itemsSource = new wijmo.collections.CollectionView(response);
+            }
+        });
+    }
 }
 
 function getChart() {
@@ -137,6 +159,17 @@ function resetAxes() {
 
     document.querySelector('#reset').disabled = 'disabled';
 }
+
+// update the details when the CollectionView's currentItem changes
+/*function updateStatus(value) {
+    wijmo.httpRequest('WebService.asmx/GetStatuses?', {
+        data: { Id: value.Id + 1 },
+        success: function (xhr) {
+            var response = JSON.parse(xhr.response);
+            gridStatus.itemsSource = new wijmo.collections.CollectionView(response);
+        }
+    });
+}*/
 
 dateTimeReviver = function (key, value) {
     var a;
