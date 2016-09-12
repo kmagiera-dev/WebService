@@ -6,7 +6,8 @@ window.onload = function () {
 
     // create the grid
     var grid = new wijmo.grid.FlexGrid('#theGrid', {
-        selectionMode: wijmo.grid.SelectionMode.Row,
+        headersVisibility: wijmo.grid.HeadersVisibility.Column,
+        selectionMode: wijmo.grid.SelectionMode.Cell,
     });
 
     var gridStatus = new wijmo.grid.FlexGrid('#theStatusGrid', {
@@ -100,17 +101,20 @@ window.onload = function () {
             cv = new wijmo.collections.CollectionView(response);
             grid.itemsSource = cv;
             chart.itemsSource = cv;
-            cv.currentChanged.addHandler(function (sender, args) {
-                updateStatus(cv.currentItem);
+            //cv.currentChanged.addHandler(function (sender, args) {
+            grid.selectionChanged.addHandler(function (sender, args) {
+
+                updateStatus(grid.selection.col);
             });
-            updateStatus(cv.currentItem);
+            updateStatus(grid.selection.col);
         }
     });
 
     // update the details when the CollectionView's currentItem changes
     function updateStatus(value) {
+        //var temp = grid.selection.col-1;
         wijmo.httpRequest('WebService.asmx/GetStatuses?', {
-            data: { Id: value.Id + 1 },
+            data: { Id: value < 2 ? 1 : value - 1},
             success: function (xhr) {
                 var response = JSON.parse(xhr.response, dateTimeReviver);
                 gridStatus.itemsSource = new wijmo.collections.CollectionView(response);
@@ -159,17 +163,6 @@ function resetAxes() {
 
     document.querySelector('#reset').disabled = 'disabled';
 }
-
-// update the details when the CollectionView's currentItem changes
-/*function updateStatus(value) {
-    wijmo.httpRequest('WebService.asmx/GetStatuses?', {
-        data: { Id: value.Id + 1 },
-        success: function (xhr) {
-            var response = JSON.parse(xhr.response);
-            gridStatus.itemsSource = new wijmo.collections.CollectionView(response);
-        }
-    });
-}*/
 
 dateTimeReviver = function (key, value) {
     var a;

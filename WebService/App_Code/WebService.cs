@@ -72,7 +72,7 @@ public class WebService : System.Web.Services.WebService
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
             // Creating insert statement
-            string query = string.Format(@"Select ts.Date, ss.SensorStatus from TimeValue As ts INNER JOIN StatusValue AS ss ON ts.SensorId  = ss.Id WHERE ss.SensorType = {0}",
+            string query = string.Format(@"Select tv.Date, sv.SensorStatus from TimeValue As tv INNER JOIN StatusValue AS sv ON tv.SensorId  = sv.Id WHERE sv.SensorType = {0}",
                 SeriesNr);
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
